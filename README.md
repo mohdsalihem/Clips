@@ -1,4 +1,4 @@
-## Clips
+## [Clips](https://clips-flame.vercel.app/)
 
 - Short video-clip sharing web app. Users can sign up and login into the app
 
