@@ -1,0 +1,33 @@
+<section class="container mx-auto my-8 bg-color-secondary p-6">
+  <div class="relative flex flex-col rounded">
+    <!-- Title and Uploader -->
+    <h1 class="mb-2 text-3xl font-bold">{{ clip?.title }}</h1>
+    <div class="mb-6 text-gray-400">
+      Uploaded By {{ clip?.userDisplayName }}
+      <span>{{ clip?.timestamp | firebaseTimestamp }}</span>
+    </div>
+
+    <!-- Video Editor -->
+    <div class="relative">
+      <!-- Video Player -->
+      <video
+        [poster]="clip?.thumbnailURL"
+        controls
+        autoplay
+        class="mx-auto h-3/4 w-full"
+        id="videoPlayer"
+      >
+        <source [src]="clip?.clipURL" type="video/mp4" />
+        Browser not supported
+      </video>
+    </div>
+  </div>
+</section>
+
+<!-- More Clips -->
+<div class="container mx-auto my-8">
+  <h2 class="mt-6 text-2xl">More Clips</h2>
+
+  <!-- Video List -->
+  <app-clips-list [scrollable]="false"></app-clips-list>
+</div>

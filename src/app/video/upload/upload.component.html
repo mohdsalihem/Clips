@@ -1,0 +1,93 @@
+<section class="container mx-auto my-8 bg-color-secondary p-6">
+  <div class="relative flex flex-col rounded">
+    <app-alert *ngIf="showAlert" [color]="alertColor">
+      <p>{{ alertMessage }}</p>
+      <p *ngIf="showPercentage">{{ percentage | percent }}</p>
+    </app-alert>
+    <ng-container *ngIf="!nextStep; else uploadFormControl">
+      <div class="mb-6 font-bold">Upload Video</div>
+      <!-- Upload Dropbox -->
+      <div
+        appEventBlocker
+        (dragend)="isDragOver = false"
+        (dragover)="isDragOver = true"
+        (dragenter)="isDragOver = true"
+        (dragleave)="isDragOver = false"
+        (mouseleave)="isDragOver = false"
+        (drop)="storeClip($event)"
+        [ngClass]="{
+          'border-solid border-indigo-400 bg-indigo-400': isDragOver
+        }"
+        class="w-full cursor-pointer rounded border border-dashed border-gray-400 px-10 py-40 text-center text-xl transition duration-500 hover:border-solid hover:border-indigo-400 hover:bg-indigo-400 hover:text-white"
+      >
+        <h5>Drop your file here (mp4 only!)</h5>
+      </div>
+      <div
+        class="relative mt-4 block h-12 w-40 cursor-pointer rounded-md bg-indigo-400 text-center"
+      >
+        <input
+          type="file"
+          id="file"
+          accept="video/mp4"
+          class="absolute top-0 left-0 h-12 w-40 cursor-pointer opacity-0"
+          (change)="storeClip($event)"
+        />
+        <span for="file" class="block cursor-pointer py-3"
+          >Choose mp4 file</span
+        >
+      </div>
+    </ng-container>
+    <!-- Video Editor -->
+    <ng-template #uploadFormControl>
+      <!-- Form -->
+      <form [formGroup]="uploadForm" (ngSubmit)="uploadFile()">
+        <!-- Screenshots -->
+        <h2 class="mb-4 text-xl">Thumbnail</h2>
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div class="cursor-pointer border-8 border-transparent">
+            <img [src]="thumbnailURL | safeURL" />
+          </div>
+        </div>
+
+        <div
+          class="relative mt-4 block h-12 w-48 cursor-pointer rounded-md bg-indigo-400 text-center"
+        >
+          <input
+            type="file"
+            id="file"
+            accept="image/jpeg"
+            class="absolute top-0 left-0 h-12 w-48 cursor-pointer opacity-0"
+            (change)="storeThumbnail($event)"
+          />
+          <span for="file" class="block cursor-pointer py-3"
+            >Choose a Thumbnail</span
+          >
+        </div>
+
+        <!-- Title -->
+        <div class="mt-4">
+          <label class="mb-4 block text-xl">Title</label>
+          <app-input
+            [control]="title"
+            placeholder="Enter Title"
+            fieldName="Title"
+          ></app-input>
+        </div>
+
+        <div class="mt-4 text-right">
+          <button
+            type="submit"
+            class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-white shadow-sm focus:outline-none"
+            [disabled]="!publishEnable"
+            [ngClass]="{
+              'opacity-50': !publishEnable,
+              'hover:bg-indigo-700': publishEnable
+            }"
+          >
+            Publish
+          </button>
+        </div>
+      </form>
+    </ng-template>
+  </div>
+</section>
