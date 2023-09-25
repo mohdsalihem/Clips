@@ -2,8 +2,8 @@ import { Directive } from '@angular/core';
 import { HostListener } from '@angular/core';
 
 @Directive({
-    selector: '[appEventBlocker]',
-    standalone: true,
+  selector: '[appEventBlocker]',
+  standalone: true,
 })
 export class EventBlockerDirective {
   @HostListener('drop', ['$event'])
@@ -11,5 +11,4 @@ export class EventBlockerDirective {
   public handleEvent(event: Event) {
     event.preventDefault();
   }
-  constructor() {}
 }

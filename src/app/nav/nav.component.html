@@ -1,6 +1,6 @@
 <!-- Header -->
 <header id="header" class="bg-color-secondary">
-  <nav class="container mx-auto flex items-center justify-start py-8 px-4">
+  <nav class="container mx-auto flex items-center justify-start px-4 py-8">
     <!-- App Name -->
     <a class="mr-4 text-3xl font-bold uppercase text-indigo-400" routerLink="/"
       >Clips</a
@@ -16,7 +16,7 @@
           >
         </li>
         <li *ngIf="!isAuthenticated(); else authLinks">
-          <a class="px-2" href="#" (click)="openModal($event)">
+          <a class="cursor-pointer px-2" (click)="openModal()">
             Login / Register
           </a>
         </li>
@@ -39,7 +39,7 @@
             >
           </li>
           <li>
-            <a href="#" class="px-2" (click)="logout($event)">Logout</a>
+            <a class="cursor-pointer px-2" (click)="logout()">Logout</a>
           </li>
         </ng-template>
       </ul>

@@ -1,31 +1,26 @@
 import { DatePipe, NgFor } from '@angular/common';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import IClip from '../models/clip.model';
 import { ClipService } from '../services/clip.service';
 import { FirebaseTimestampPipe } from '../pipes/firebase-timestamp.pipe';
 import { RouterLink } from '@angular/router';
 
 @Component({
-    selector: 'app-clips-list',
-    templateUrl: './clips-list.component.html',
-    styles: [],
-    providers: [DatePipe],
-    standalone: true,
-    imports: [
-        NgFor,
-        RouterLink,
-        FirebaseTimestampPipe,
-    ],
+  selector: 'app-clip-list',
+  templateUrl: './clip-list.component.html',
+  styles: [],
+  providers: [DatePipe],
+  standalone: true,
+  imports: [NgFor, RouterLink, FirebaseTimestampPipe],
 })
-export class ClipsListComponent implements OnInit, OnDestroy {
+export class ClipListComponent implements OnInit, OnDestroy {
   clips: IClip[] = [];
   @Input() scrollable = true;
-
-  constructor(private clipsService: ClipService) {}
+  clipService = inject(ClipService);
 
   ngOnInit(): void {
-    this.clipsService.getClips(true);
-    this.clips = this.clipsService.pageClips;
+    this.clipService.getClips(true);
+    this.clips = this.clipService.pageClips;
     if (this.scrollable) {
       window.addEventListener('scroll', this.handleScroll);
     }
@@ -45,8 +40,8 @@ export class ClipsListComponent implements OnInit, OnDestroy {
     const bottomOfWindow = Math.round(scrollTop) + innerHeight === offsetHeight;
 
     if (bottomOfWindow) {
-      this.clipsService.getClips(false);
-      this.clips = this.clipsService.pageClips;
+      this.clipService.getClips(false);
+      this.clips = this.clipService.pageClips;
     }
   };
 }

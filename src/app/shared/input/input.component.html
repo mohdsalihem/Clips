@@ -2,8 +2,7 @@
   [formControl]="control"
   [type]="type"
   [placeholder]="placeholder"
-  [mask]="maskFormat"
-  class="block w-full rounded border border-gray-400 bg-transparent py-1.5 px-3 text-gray-200 transition duration-500 focus:border-indigo-400 focus:outline-none"
+  class="block w-full rounded border border-gray-400 bg-transparent px-3 py-1.5 text-gray-200 transition duration-500 focus:border-indigo-400 focus:outline-none"
 />
 
 <ng-container *ngIf="control.touched && control.dirty">
@@ -16,17 +15,17 @@
   </p>
   <p *ngIf="control.errors?.['minlength']" class="text-red-400">
     {{ fieldName }} must be at least
-    {{ control.errors?.['minlength'].requiredLength }}
+    {{ control.errors?.["minlength"].requiredLength }}
     characters long.
   </p>
   <p *ngIf="control.errors?.['email']" class="text-red-400">
     You must enter a valid email.
   </p>
   <p *ngIf="control.errors?.['min']" class="text-red-400">
-    {{ fieldName }} must be greater than {{ control.errors?.['min'].min }}.
+    {{ fieldName }} must be greater than {{ control.errors?.["min"].min }}.
   </p>
   <p *ngIf="control.errors?.['max']" class="text-red-400">
-    {{ fieldName }} must be less than {{ control.errors?.['max'].max }}.
+    {{ fieldName }} must be less than {{ control.errors?.["max"].max }}.
   </p>
   <p *ngIf="control.errors?.['notMatch']" class="text-red-400">
     Passwords do not match.

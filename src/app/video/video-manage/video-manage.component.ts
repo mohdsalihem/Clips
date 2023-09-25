@@ -1,57 +1,55 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { ClipService } from 'src/app/services/clip.service';
 import IClip from 'src/app/models/clip.model';
 import { ModalService } from 'src/app/services/modal.service';
-import { BehaviorSubject } from 'rxjs';
-import { EditComponent } from '../edit/edit.component';
+import { BehaviorSubject, takeUntil } from 'rxjs';
+import { VideoEditComponent } from '../video-edit/video-edit.component';
 import { NgFor } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+import { destroyNotifier } from 'src/app/helpers/destroyNotifier';
 
 @Component({
-    selector: 'app-manage',
-    templateUrl: './manage.component.html',
-    styles: [],
-    standalone: true,
-    imports: [
-        RouterLink,
-        ReactiveFormsModule,
-        NgFor,
-        EditComponent,
-    ],
+  selector: 'app-video-manage',
+  templateUrl: './video-manage.component.html',
+  styles: [],
+  standalone: true,
+  imports: [RouterLink, ReactiveFormsModule, NgFor, VideoEditComponent],
 })
-export class ManageComponent implements OnInit {
+export class VideoManageComponent implements OnInit {
+  router = inject(Router);
+  route = inject(ActivatedRoute);
+  clipService = inject(ClipService);
+  modalService = inject(ModalService);
+
   videoOrder = '1';
   clips: IClip[] = [];
   activeClip: IClip | null = null;
-  sort$: BehaviorSubject<string>;
-
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private clipService: ClipService,
-    private modal: ModalService
-  ) {
-    this.sort$ = new BehaviorSubject(this.videoOrder);
-  }
+  sort$ = new BehaviorSubject(this.videoOrder);
+  destroy$ = destroyNotifier();
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe((params) => {
-      this.videoOrder = params['sort'] === '2' ? params['sort'] : '1';
-      this.sort$.next(this.videoOrder);
-    });
-    this.clipService.getUserClips(this.sort$).subscribe((docs) => {
-      this.clips = [];
-      if (!docs) {
-        return;
-      }
-      docs.forEach((doc) => {
-        this.clips.push({
-          docID: doc.id,
-          ...doc.data(),
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params) => {
+        this.videoOrder = params['sort'] === '2' ? params['sort'] : '1';
+        this.sort$.next(this.videoOrder);
+      });
+    this.clipService
+      .getUserClips(this.sort$)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((docs) => {
+        this.clips = [];
+        if (!docs) {
+          return;
+        }
+        docs.forEach((doc) => {
+          this.clips.push({
+            docID: doc.id,
+            ...doc.data(),
+          });
         });
       });
-    });
   }
 
   sort(event: Event) {
@@ -67,7 +65,7 @@ export class ManageComponent implements OnInit {
   openModal($event: Event, clip: IClip) {
     $event.preventDefault();
     this.activeClip = clip;
-    this.modal.toggleModal();
+    this.modalService.toggleModal();
   }
 
   update($event: IClip) {

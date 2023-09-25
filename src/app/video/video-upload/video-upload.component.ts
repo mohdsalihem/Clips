@@ -1,5 +1,10 @@
-import { Component, OnDestroy } from '@angular/core';
-import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import {
+  FormControl,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import {
   Storage,
   StorageReference,
@@ -14,31 +19,37 @@ import { Auth, User, authState } from '@angular/fire/auth';
 import { ClipService } from 'src/app/services/clip.service';
 import { Router } from '@angular/router';
 import IClip from 'src/app/models/clip.model';
-import { combineLatest, forkJoin } from 'rxjs';
+import { combineLatest, forkJoin, takeUntil } from 'rxjs';
 import { serverTimestamp } from '@angular/fire/firestore';
 import { SafeURLPipe } from '../pipes/safe-url.pipe';
 import { InputComponent } from '../../shared/input/input.component';
 import { EventBlockerDirective } from '../../shared/directives/event-blocker.directive';
 import { AlertComponent } from '../../shared/alert/alert.component';
 import { NgIf, NgClass, PercentPipe } from '@angular/common';
+import { destroyNotifier } from 'src/app/helpers/destroyNotifier';
 
 @Component({
-    selector: 'app-upload',
-    templateUrl: './upload.component.html',
-    styles: [],
-    standalone: true,
-    imports: [
-        NgIf,
-        AlertComponent,
-        EventBlockerDirective,
-        NgClass,
-        ReactiveFormsModule,
-        InputComponent,
-        PercentPipe,
-        SafeURLPipe,
-    ],
+  selector: 'app-video-upload',
+  templateUrl: './video-upload.component.html',
+  styles: [],
+  standalone: true,
+  imports: [
+    NgIf,
+    AlertComponent,
+    EventBlockerDirective,
+    NgClass,
+    ReactiveFormsModule,
+    InputComponent,
+    PercentPipe,
+    SafeURLPipe,
+  ],
 })
-export class UploadComponent implements OnDestroy {
+export class VideoUploadComponent implements OnInit, OnDestroy {
+  storage = inject(Storage);
+  auth = inject(Auth);
+  clipsService = inject(ClipService);
+  router = inject(Router);
+
   isDragOver = false;
   clipFile: File | null = null;
   thumbnailFile: File | null = null;
@@ -53,11 +64,13 @@ export class UploadComponent implements OnDestroy {
   user: User | null = null;
   clipTask?: UploadTask;
   thumbnailTask?: UploadTask;
-
-  title = new FormControl('', [Validators.required, Validators.minLength(3)]);
+  destroy$ = destroyNotifier();
 
   uploadForm = new FormGroup({
-    title: this.title,
+    title: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(3)],
+    }),
   });
 
   get publishEnable() {
@@ -66,13 +79,10 @@ export class UploadComponent implements OnDestroy {
     );
   }
 
-  constructor(
-    private storage: Storage,
-    private auth: Auth,
-    private clipsService: ClipService,
-    private router: Router
-  ) {
-    authState(this.auth).subscribe((user) => (this.user = user));
+  ngOnInit(): void {
+    authState(this.auth)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((user) => (this.user = user));
   }
 
   ngOnDestroy(): void {
@@ -104,7 +114,9 @@ export class UploadComponent implements OnDestroy {
       this.alertMessage = 'Clip size must be less than 30MB';
       return;
     }
-    this.title.setValue(this.clipFile.name.replace(/\.[^/.]+$/, ''));
+    this.uploadForm.controls.title.setValue(
+      this.clipFile.name.replace(/\.[^/.]+$/, ''),
+    );
     this.nextStep = true;
   }
 
@@ -137,43 +149,43 @@ export class UploadComponent implements OnDestroy {
     const thumbnailRef = ref(this.storage, thumbnailPath);
     this.thumbnailTask = uploadBytesResumable(
       thumbnailRef,
-      this.thumbnailFile!
+      this.thumbnailFile!,
     );
 
-    combineLatest([
-      percentage(this.clipTask),
-      percentage(this.thumbnailTask),
-    ]).subscribe({
-      next: (progress) => {
-        const [clipProgress, thumbnailProgress] = progress;
+    combineLatest([percentage(this.clipTask), percentage(this.thumbnailTask)])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (progress) => {
+          const [clipProgress, thumbnailProgress] = progress;
 
-        if (!clipProgress || !thumbnailProgress) {
-          return;
-        }
+          if (!clipProgress || !thumbnailProgress) {
+            return;
+          }
 
-        const total = clipProgress.progress + thumbnailProgress.progress;
+          const total = clipProgress.progress + thumbnailProgress.progress;
 
-        this.percentage = total / 200;
-      },
-      complete: () => {
-        this.saveFile(clipRef, thumbnailRef, fileName);
-      },
-    });
+          this.percentage = total / 200;
+        },
+        complete: () => {
+          this.saveFile(clipRef, thumbnailRef, fileName);
+        },
+      });
   }
 
   saveFile(
     clipRef: StorageReference,
     thumbnailRef: StorageReference,
-    fileName: string
+    fileName: string,
   ) {
-    forkJoin([getDownloadURL(clipRef), getDownloadURL(thumbnailRef)]).subscribe(
-      {
+    forkJoin([getDownloadURL(clipRef), getDownloadURL(thumbnailRef)])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: async (urls) => {
           const [clipURL, thumbnailURL] = urls;
           const clip: IClip = {
             userID: this.user?.uid!,
             userDisplayName: this.user?.displayName!,
-            title: this.title.value!,
+            title: this.uploadForm.controls.title.value,
             clipFileName: `${fileName}.mp4`,
             clipURL: clipURL,
             thumbnailURL: thumbnailURL,
@@ -199,7 +211,6 @@ export class UploadComponent implements OnDestroy {
           this.showPercentage = false;
           console.error(error);
         },
-      }
-    );
+      });
   }
 }

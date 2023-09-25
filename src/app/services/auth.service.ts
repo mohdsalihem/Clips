@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   Auth,
   authState,
@@ -12,39 +12,22 @@ import {
   setDoc,
   doc,
 } from '@angular/fire/firestore';
-import { Observable, delay, map, filter } from 'rxjs';
+import { delay, map } from 'rxjs';
 import IUser from '../models/user.model';
-import { Router, ActivationStart } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private usersCollection: CollectionReference<IUser>;
-  public isAuthenticated$: Observable<boolean>;
-  public isAuthenticatedWithDelay$: Observable<boolean>;
-  redirect = false;
+  auth = inject(Auth);
+  store = inject(Firestore);
 
-  constructor(
-    private auth: Auth,
-    private db: Firestore,
-    private router: Router,
-  ) {
-    this.usersCollection = collection(
-      this.db,
-      'users',
-    ) as CollectionReference<IUser>;
-    this.isAuthenticated$ = authState(this.auth).pipe(map((user) => !!user));
-    this.isAuthenticatedWithDelay$ = this.isAuthenticated$.pipe(delay(1000));
-
-    this.router.events
-      .pipe(
-        filter((e) => e instanceof ActivationStart),
-        map((e) => e as ActivationStart),
-        map((e) => e.snapshot.data['authOnly'] ?? false),
-      )
-      .subscribe((val) => (this.redirect = val));
-  }
+  private usersCollection = collection(
+    this.store,
+    'users',
+  ) as CollectionReference<IUser>;
+  public isAuthenticated$ = authState(this.auth).pipe(map((user) => !!user));
+  public isAuthenticatedWithDelay$ = this.isAuthenticated$.pipe(delay(1000));
 
   public async createUser(userData: IUser) {
     if (!userData.password) {
@@ -75,9 +58,5 @@ export class AuthService {
 
   async logout() {
     await this.auth.signOut();
-    localStorage.removeItem('isAuthenticated');
-    if (this.redirect) {
-      await this.router.navigate(['/']);
-    }
   }
 }

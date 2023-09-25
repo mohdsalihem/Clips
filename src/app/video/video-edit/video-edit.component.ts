@@ -5,10 +5,16 @@ import {
   OnChanges,
   Output,
   EventEmitter,
+  inject,
 } from '@angular/core';
 import { ModalService } from 'src/app/services/modal.service';
 import IClip from 'src/app/models/clip.model';
-import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { ClipService } from 'src/app/services/clip.service';
 import { InputComponent } from '../../shared/input/input.component';
 import { AlertComponent } from '../../shared/alert/alert.component';
@@ -16,20 +22,23 @@ import { NgIf, NgClass } from '@angular/common';
 import { ModalComponent } from '../../shared/modal/modal.component';
 
 @Component({
-    selector: 'app-edit',
-    templateUrl: './edit.component.html',
-    styles: [],
-    standalone: true,
-    imports: [
-        ModalComponent,
-        NgIf,
-        AlertComponent,
-        ReactiveFormsModule,
-        InputComponent,
-        NgClass,
-    ],
+  selector: 'app-video-edit',
+  templateUrl: './video-edit.component.html',
+  styles: [],
+  standalone: true,
+  imports: [
+    ModalComponent,
+    NgIf,
+    AlertComponent,
+    ReactiveFormsModule,
+    InputComponent,
+    NgClass,
+  ],
 })
-export class EditComponent implements OnInit, OnChanges {
+export class VideoEditComponent implements OnInit, OnChanges {
+  modalService = inject(ModalService);
+  clipService = inject(ClipService);
+
   @Input() activeClip: IClip | null = null;
   showAlert = false;
   alertColor = 'blue';
@@ -37,15 +46,16 @@ export class EditComponent implements OnInit, OnChanges {
   inSubmission = false;
   @Output() update = new EventEmitter();
 
-  clipID = new FormControl('');
-  title = new FormControl('', [Validators.required, Validators.minLength(3)]);
-
   editForm = new FormGroup({
-    title: this.title,
-    id: this.clipID,
+    title: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(3)],
+    }),
+    id: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
   });
-
-  constructor(private modal: ModalService, private clipService: ClipService) {}
 
   ngOnInit(): void {}
 
@@ -56,8 +66,8 @@ export class EditComponent implements OnInit, OnChanges {
 
     this.inSubmission = false;
     this.showAlert = false;
-    this.clipID.setValue(this.activeClip.docID!);
-    this.title.setValue(this.activeClip.title);
+    this.editForm.controls.id.setValue(this.activeClip.docID!);
+    this.editForm.controls.title.setValue(this.activeClip.title);
   }
 
   async submit() {
@@ -71,7 +81,10 @@ export class EditComponent implements OnInit, OnChanges {
     this.alertMessage = 'Please wait! Updating clip.';
 
     try {
-      await this.clipService.updateClip(this.clipID.value!, this.title.value!);
+      await this.clipService.updateClip(
+        this.editForm.controls.id.value,
+        this.editForm.controls.title.value,
+      );
     } catch (error) {
       this.inSubmission = false;
       this.alertColor = 'red';
@@ -79,7 +92,7 @@ export class EditComponent implements OnInit, OnChanges {
       return;
     }
 
-    this.activeClip.title = this.title.value!;
+    this.activeClip.title = this.editForm.controls.title.value;
     this.update.emit(this.activeClip);
 
     this.inSubmission = false;

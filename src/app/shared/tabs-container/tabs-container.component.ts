@@ -8,15 +8,14 @@ import { TabComponent } from '../tab/tab.component';
 import { NgFor, NgClass } from '@angular/common';
 
 @Component({
-    selector: 'app-tabs-container',
-    templateUrl: './tabs-container.component.html',
-    styles: [],
-    standalone: true,
-    imports: [NgFor, NgClass],
+  selector: 'app-tabs-container',
+  templateUrl: './tabs-container.component.html',
+  styles: [],
+  standalone: true,
+  imports: [NgFor, NgClass],
 })
 export class TabsContainerComponent implements AfterContentInit {
   @ContentChildren(TabComponent) tabs?: QueryList<TabComponent>;
-  constructor() {}
 
   ngAfterContentInit(): void {
     const activeTabs = this.tabs?.filter((tab) => tab.active);

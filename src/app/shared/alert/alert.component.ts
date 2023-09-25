@@ -2,11 +2,11 @@ import { Component, OnInit, Input } from '@angular/core';
 import { NgClass } from '@angular/common';
 
 @Component({
-    selector: 'app-alert',
-    templateUrl: './alert.component.html',
-    styles: [],
-    standalone: true,
-    imports: [NgClass],
+  selector: 'app-alert',
+  templateUrl: './alert.component.html',
+  styles: [],
+  standalone: true,
+  imports: [NgClass],
 })
 export class AlertComponent implements OnInit {
   @Input() color = 'blue';
@@ -24,7 +24,6 @@ export class AlertComponent implements OnInit {
         return 'bg-blue-400';
     }
   }
-  constructor() {}
 
   ngOnInit(): void {}
 }

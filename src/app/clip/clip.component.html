@@ -16,8 +16,8 @@
         autoplay
         class="mx-auto h-3/4 w-full"
         id="videoPlayer"
+        [src]="clip?.clipURL"
       >
-        <source [src]="clip?.clipURL" type="video/mp4" />
         Browser not supported
       </video>
     </div>
@@ -29,5 +29,5 @@
   <h2 class="mt-6 text-2xl">More Clips</h2>
 
   <!-- Video List -->
-  <app-clips-list [scrollable]="false"></app-clips-list>
+  <app-clip-list [scrollable]="false"></app-clip-list>
 </div>

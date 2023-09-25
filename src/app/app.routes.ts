@@ -1,25 +1,21 @@
 import { Routes } from '@angular/router';
 import { AboutComponent } from 'src/app/about/about.component';
 import { ClipComponent } from 'src/app/clip/clip.component';
-import { HomeComponent } from 'src/app/home/home.component';
 import { NotFoundComponent } from 'src/app/not-found/not-found.component';
-import { ClipService } from 'src/app/services/clip.service';
+import { ClipListComponent } from './clip-list/clip-list.component';
+import { AuthGuard } from '@angular/fire/auth-guard';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
+  { path: '', component: ClipListComponent, pathMatch: 'full' },
   { path: 'about', component: AboutComponent },
   {
     path: 'clip/:id',
     component: ClipComponent,
-    resolve: {
-      clip: ClipService,
-    },
   },
   {
     path: 'video',
-    loadChildren: () => import('./app/video/video.routes'),
-    //   loadChildren: async () =>
-    //     (await import('./video/video.module')).VideoModule,
+    canActivate: [AuthGuard],
+    loadChildren: () => import('./video/video.routes'),
   },
   { path: '**', component: NotFoundComponent },
 ];

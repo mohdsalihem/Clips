@@ -1,29 +1,29 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { ModalService } from 'src/app/services/modal.service';
 import { NgClass } from '@angular/common';
 
 @Component({
-    selector: 'app-modal',
-    templateUrl: './modal.component.html',
-    styles: [],
-    standalone: true,
-    imports: [NgClass],
+  selector: 'app-modal',
+  templateUrl: './modal.component.html',
+  styles: [],
+  standalone: true,
+  imports: [NgClass],
 })
 export class ModalComponent implements OnInit, OnDestroy {
   @Input() modalID = '';
-  constructor(private modal: ModalService) {}
+  modalService = inject(ModalService);
 
   ngOnInit(): void {}
 
   ngOnDestroy(): void {
-    this.modal.closeModal();
+    this.modalService.closeModal();
   }
 
   isModalOpen(): boolean {
-    return this.modal.isModalOpen();
+    return this.modalService.isModalOpen();
   }
 
   toggleModal() {
-    this.modal.toggleModal();
+    this.modalService.toggleModal();
   }
 }

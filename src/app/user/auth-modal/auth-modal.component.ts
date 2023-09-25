@@ -6,20 +6,18 @@ import { TabsContainerComponent } from '../../shared/tabs-container/tabs-contain
 import { ModalComponent } from '../../shared/modal/modal.component';
 
 @Component({
-    selector: 'app-auth-modal',
-    templateUrl: './auth-modal.component.html',
-    styles: [],
-    standalone: true,
-    imports: [
-        ModalComponent,
-        TabsContainerComponent,
-        TabComponent,
-        LoginComponent,
-        RegisterComponent,
-    ],
+  selector: 'app-auth-modal',
+  templateUrl: './auth-modal.component.html',
+  styles: [],
+  standalone: true,
+  imports: [
+    ModalComponent,
+    TabsContainerComponent,
+    TabComponent,
+    LoginComponent,
+    RegisterComponent,
+  ],
 })
 export class AuthModalComponent implements OnInit {
-  constructor() {}
-
   ngOnInit(): void {}
 }

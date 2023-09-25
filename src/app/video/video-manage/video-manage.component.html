@@ -3,7 +3,7 @@
   <div class="relative flex justify-between rounded">
     <a
       routerLink="/video/upload"
-      class="bg-indigo-400 py-4 px-10 text-xl text-white"
+      class="bg-indigo-400 px-10 py-4 text-xl text-white"
       >Upload Videos</a
     >
 
@@ -26,7 +26,7 @@
   >
     <div
       *ngFor="let clip of clips"
-      class="mt-6 flex flex-col justify-start rounded-tl-2xl rounded-br-2xl bg-color-secondary shadow-xl"
+      class="mt-6 flex flex-col justify-start rounded-br-2xl rounded-tl-2xl bg-color-secondary shadow-xl"
     >
       <!-- Image -->
       <a [routerLink]="['/', 'clip', clip.docID]">
@@ -70,4 +70,7 @@
     </div>
   </div>
 </div>
-<app-edit [activeClip]="activeClip" (update)="update($event)"></app-edit>
+<app-video-edit
+  [activeClip]="activeClip"
+  (update)="update($event)"
+></app-video-edit>

@@ -1,0 +1,32 @@
+<section class="container mx-auto">
+  <!-- Clips List -->
+  <div
+    class="ml-auto mr-auto grid w-9/12 grid-cols-1 gap-6 lg:w-full lg:grid-cols-3 lg:gap-x-14 lg:gap-y-7"
+  >
+    <a
+      *ngFor="let clip of clips"
+      [routerLink]="['/clip', clip.docID]"
+      class="mt-6 transform rounded-br-2xl rounded-tl-2xl bg-color-secondary shadow-xl transition duration-300 hover:-translate-y-2 hover:shadow-2xl"
+    >
+      <!-- Image -->
+      <img
+        class="h-72 w-full rounded-tl-2xl lg:w-full"
+        [src]="clip.thumbnailURL"
+      />
+
+      <!-- Body -->
+      <div class="p-3">
+        <!-- Heading -->
+        <h2 class="mb-2 text-2xl font-bold">{{ clip.title }}</h2>
+
+        <!-- Name & Date -->
+        <p class="mb-0">
+          {{ clip.userDisplayName }} &#183;
+          <span class="text-gray-400">{{
+            clip.timestamp | firebaseTimestamp
+          }}</span>
+        </p>
+      </div>
+    </a>
+  </div>
+</section>

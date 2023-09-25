@@ -1,40 +1,44 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ModalService } from '../services/modal.service';
 import { AuthService } from '../services/auth.service';
-import { NgIf } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { destroyNotifier } from '../helpers/destroyNotifier';
+import { takeUntil } from 'rxjs';
 
 @Component({
-    selector: 'app-nav',
-    templateUrl: './nav.component.html',
-    styles: [],
-    standalone: true,
-    imports: [
-        RouterLink,
-        RouterLinkActive,
-        NgIf,
-    ],
+  selector: 'app-nav',
+  templateUrl: './nav.component.html',
+  styles: [],
+  standalone: true,
+  imports: [RouterLink, RouterLinkActive, CommonModule],
 })
 export class NavComponent implements OnInit {
-  constructor(public modal: ModalService, private auth: AuthService) {}
+  modal = inject(ModalService);
+  auth = inject(AuthService);
+  router = inject(Router);
+
+  destroy$ = destroyNotifier();
 
   ngOnInit(): void {
     this.checkAuth();
   }
 
-  openModal($event: Event) {
-    $event.preventDefault();
+  openModal() {
     this.modal.toggleModal();
   }
 
-  async logout($event: Event) {
-    $event.preventDefault();
+  async logout() {
     await this.auth.logout();
+    localStorage.removeItem('isAuthenticated');
+    await this.router.navigate(['/']);
   }
   checkAuth() {
-    this.auth.isAuthenticated$.subscribe((response) =>
-      localStorage.setItem('isAuthenticated', String(response))
-    );
+    this.auth.isAuthenticated$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((response) =>
+        localStorage.setItem('isAuthenticated', String(response)),
+      );
   }
   isAuthenticated(): boolean {
     const isAuthenticated = localStorage.getItem('isAuthenticated');
