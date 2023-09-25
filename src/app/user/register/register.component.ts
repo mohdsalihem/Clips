@@ -1,14 +1,24 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from 'src/app/services/auth.service';
 import { RegisterValidators } from '../validators/register-validators';
 import { EmailTaken } from '../validators/email-taken';
 import IUser from 'src/app/models/user.model';
+import { InputComponent } from '../../shared/input/input.component';
+import { AlertComponent } from '../../shared/alert/alert.component';
+import { NgIf } from '@angular/common';
 
 @Component({
-  selector: 'app-register',
-  templateUrl: './register.component.html',
-  styles: [],
+    selector: 'app-register',
+    templateUrl: './register.component.html',
+    styles: [],
+    standalone: true,
+    imports: [
+        NgIf,
+        AlertComponent,
+        ReactiveFormsModule,
+        InputComponent,
+    ],
 })
 export class RegisterComponent implements OnInit {
   inSubmission = false;

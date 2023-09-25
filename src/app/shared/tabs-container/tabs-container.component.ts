@@ -5,11 +5,14 @@ import {
   QueryList,
 } from '@angular/core';
 import { TabComponent } from '../tab/tab.component';
+import { NgFor, NgClass } from '@angular/common';
 
 @Component({
-  selector: 'app-tabs-container',
-  templateUrl: './tabs-container.component.html',
-  styles: [],
+    selector: 'app-tabs-container',
+    templateUrl: './tabs-container.component.html',
+    styles: [],
+    standalone: true,
+    imports: [NgFor, NgClass],
 })
 export class TabsContainerComponent implements AfterContentInit {
   @ContentChildren(TabComponent) tabs?: QueryList<TabComponent>;

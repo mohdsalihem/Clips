@@ -1,11 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalService } from '../services/modal.service';
 import { AuthService } from '../services/auth.service';
+import { NgIf } from '@angular/common';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
-  selector: 'app-nav',
-  templateUrl: './nav.component.html',
-  styles: [],
+    selector: 'app-nav',
+    templateUrl: './nav.component.html',
+    styles: [],
+    standalone: true,
+    imports: [
+        RouterLink,
+        RouterLinkActive,
+        NgIf,
+    ],
 })
 export class NavComponent implements OnInit {
   constructor(public modal: ModalService, private auth: AuthService) {}

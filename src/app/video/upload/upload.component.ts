@@ -1,5 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import {
   Storage,
   StorageReference,
@@ -16,11 +16,27 @@ import { Router } from '@angular/router';
 import IClip from 'src/app/models/clip.model';
 import { combineLatest, forkJoin } from 'rxjs';
 import { serverTimestamp } from '@angular/fire/firestore';
+import { SafeURLPipe } from '../pipes/safe-url.pipe';
+import { InputComponent } from '../../shared/input/input.component';
+import { EventBlockerDirective } from '../../shared/directives/event-blocker.directive';
+import { AlertComponent } from '../../shared/alert/alert.component';
+import { NgIf, NgClass, PercentPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-upload',
-  templateUrl: './upload.component.html',
-  styles: [],
+    selector: 'app-upload',
+    templateUrl: './upload.component.html',
+    styles: [],
+    standalone: true,
+    imports: [
+        NgIf,
+        AlertComponent,
+        EventBlockerDirective,
+        NgClass,
+        ReactiveFormsModule,
+        InputComponent,
+        PercentPipe,
+        SafeURLPipe,
+    ],
 })
 export class UploadComponent implements OnDestroy {
   isDragOver = false;

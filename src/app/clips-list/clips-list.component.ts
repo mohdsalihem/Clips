@@ -1,13 +1,21 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgFor } from '@angular/common';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import IClip from '../models/clip.model';
 import { ClipService } from '../services/clip.service';
+import { FirebaseTimestampPipe } from '../pipes/firebase-timestamp.pipe';
+import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-clips-list',
-  templateUrl: './clips-list.component.html',
-  styles: [],
-  providers: [DatePipe],
+    selector: 'app-clips-list',
+    templateUrl: './clips-list.component.html',
+    styles: [],
+    providers: [DatePipe],
+    standalone: true,
+    imports: [
+        NgFor,
+        RouterLink,
+        FirebaseTimestampPipe,
+    ],
 })
 export class ClipsListComponent implements OnInit, OnDestroy {
   clips: IClip[] = [];

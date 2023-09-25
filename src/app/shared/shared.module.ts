@@ -12,24 +12,20 @@ import { AlertComponent } from './alert/alert.component';
 import { EventBlockerDirective } from './directives/event-blocker.directive';
 
 @NgModule({
-  declarations: [
-    ModalComponent,
-    TabsContainerComponent,
-    TabComponent,
-    InputComponent,
-    AlertComponent,
-    EventBlockerDirective,
-  ],
-  imports: [CommonModule, ReactiveFormsModule, NgxMaskDirective],
-  exports: [
-    ModalComponent,
-    TabsContainerComponent,
-    TabComponent,
-    InputComponent,
-    AlertComponent,
-    EventBlockerDirective,
-    
-  ],
-  providers: [provideNgxMask()]
+    imports: [CommonModule, ReactiveFormsModule, NgxMaskDirective, ModalComponent,
+        TabsContainerComponent,
+        TabComponent,
+        InputComponent,
+        AlertComponent,
+        EventBlockerDirective],
+    exports: [
+        ModalComponent,
+        TabsContainerComponent,
+        TabComponent,
+        InputComponent,
+        AlertComponent,
+        EventBlockerDirective,
+    ],
+    providers: [provideNgxMask()]
 })
 export class SharedModule {}

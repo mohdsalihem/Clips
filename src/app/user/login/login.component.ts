@@ -1,11 +1,21 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
+import { InputComponent } from '../../shared/input/input.component';
+import { AlertComponent } from '../../shared/alert/alert.component';
+import { NgIf } from '@angular/common';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styles: [],
+    selector: 'app-login',
+    templateUrl: './login.component.html',
+    styles: [],
+    standalone: true,
+    imports: [
+        NgIf,
+        AlertComponent,
+        ReactiveFormsModule,
+        InputComponent,
+    ],
 })
 export class LoginComponent implements OnInit {
   alertColor = 'blue';

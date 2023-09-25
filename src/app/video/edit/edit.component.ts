@@ -8,13 +8,26 @@ import {
 } from '@angular/core';
 import { ModalService } from 'src/app/services/modal.service';
 import IClip from 'src/app/models/clip.model';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ClipService } from 'src/app/services/clip.service';
+import { InputComponent } from '../../shared/input/input.component';
+import { AlertComponent } from '../../shared/alert/alert.component';
+import { NgIf, NgClass } from '@angular/common';
+import { ModalComponent } from '../../shared/modal/modal.component';
 
 @Component({
-  selector: 'app-edit',
-  templateUrl: './edit.component.html',
-  styles: [],
+    selector: 'app-edit',
+    templateUrl: './edit.component.html',
+    styles: [],
+    standalone: true,
+    imports: [
+        ModalComponent,
+        NgIf,
+        AlertComponent,
+        ReactiveFormsModule,
+        InputComponent,
+        NgClass,
+    ],
 })
 export class EditComponent implements OnInit, OnChanges {
   @Input() activeClip: IClip | null = null;

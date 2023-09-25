@@ -1,14 +1,24 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { ClipService } from 'src/app/services/clip.service';
 import IClip from 'src/app/models/clip.model';
 import { ModalService } from 'src/app/services/modal.service';
 import { BehaviorSubject } from 'rxjs';
+import { EditComponent } from '../edit/edit.component';
+import { NgFor } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-manage',
-  templateUrl: './manage.component.html',
-  styles: [],
+    selector: 'app-manage',
+    templateUrl: './manage.component.html',
+    styles: [],
+    standalone: true,
+    imports: [
+        RouterLink,
+        ReactiveFormsModule,
+        NgFor,
+        EditComponent,
+    ],
 })
 export class ManageComponent implements OnInit {
   videoOrder = '1';

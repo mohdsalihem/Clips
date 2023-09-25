@@ -10,12 +10,12 @@ import { EditComponent } from './edit/edit.component';
 import { SafeURLPipe } from './pipes/safe-url.pipe';
 
 @NgModule({
-  declarations: [ManageComponent, UploadComponent, EditComponent, SafeURLPipe],
-  imports: [
-    CommonModule,
-    VideoRoutingModule,
-    SharedModule,
-    ReactiveFormsModule,
-  ],
+    imports: [
+        CommonModule,
+        VideoRoutingModule,
+        SharedModule,
+        ReactiveFormsModule,
+        ManageComponent, UploadComponent, EditComponent, SafeURLPipe,
+    ],
 })
 export class VideoModule {}

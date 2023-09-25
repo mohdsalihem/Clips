@@ -3,7 +3,8 @@ import { DatePipe } from '@angular/common';
 import { FieldValue, Timestamp } from '@angular/fire/firestore';
 
 @Pipe({
-  name: 'firebaseTimestamp',
+    name: 'firebaseTimestamp',
+    standalone: true,
 })
 export class FirebaseTimestampPipe implements PipeTransform {
   constructor(private datePipe: DatePipe) {}
