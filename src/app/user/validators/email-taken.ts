@@ -1,4 +1,4 @@
-import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { Auth, fetchSignInMethodsForEmail } from '@angular/fire/auth';
 import { Injectable } from '@angular/core';
 import {
   AbstractControl,
@@ -11,7 +11,7 @@ import { delay, Observable, of, switchMap } from 'rxjs';
   providedIn: 'root',
 })
 export class EmailTaken implements AsyncValidator {
-  constructor(private auth: AngularFireAuth) {}
+  constructor(private auth: Auth) {}
 
   validate = (
     control: AbstractControl
@@ -19,9 +19,9 @@ export class EmailTaken implements AsyncValidator {
     const isEmailExist$ = of(control.value).pipe(
       delay(1000),
       switchMap((email) =>
-        this.auth
-          .fetchSignInMethodsForEmail(email)
-          .then((response) => (response.length ? { emailTaken: true } : null))
+        fetchSignInMethodsForEmail(this.auth, email).then((response) =>
+          response.length ? { emailTaken: true } : null
+        )
       )
     );
     return isEmailExist$;

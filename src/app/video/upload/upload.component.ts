@@ -1,17 +1,21 @@
 import { Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import {
-  AngularFireStorage,
-  AngularFireUploadTask,
-} from '@angular/fire/compat/storage';
+  Storage,
+  StorageReference,
+  UploadTask,
+  getDownloadURL,
+  percentage,
+  ref,
+  uploadBytesResumable,
+} from '@angular/fire/storage';
 import { v4 as uuid } from 'uuid';
-import { switchMap } from 'rxjs/operators';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import firebase from 'firebase/compat/app';
+import { Auth, User, authState } from '@angular/fire/auth';
 import { ClipService } from 'src/app/services/clip.service';
 import { Router } from '@angular/router';
 import IClip from 'src/app/models/clip.model';
 import { combineLatest, forkJoin } from 'rxjs';
+import { serverTimestamp } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-upload',
@@ -30,9 +34,9 @@ export class UploadComponent implements OnDestroy {
   inSubmission = false;
   percentage = 0;
   showPercentage = false;
-  user: firebase.User | null = null;
-  clipTask?: AngularFireUploadTask;
-  thumbnailTask?: AngularFireUploadTask;
+  user: User | null = null;
+  clipTask?: UploadTask;
+  thumbnailTask?: UploadTask;
 
   title = new FormControl('', [Validators.required, Validators.minLength(3)]);
 
@@ -47,12 +51,12 @@ export class UploadComponent implements OnDestroy {
   }
 
   constructor(
-    private storage: AngularFireStorage,
-    private auth: AngularFireAuth,
+    private storage: Storage,
+    private auth: Auth,
     private clipsService: ClipService,
     private router: Router
   ) {
-    auth.user.subscribe((user) => (this.user = user));
+    authState(this.auth).subscribe((user) => (this.user = user));
   }
 
   ngOnDestroy(): void {
@@ -111,37 +115,43 @@ export class UploadComponent implements OnDestroy {
     const clipPath = `clips/${fileName}.mp4`;
     const thumbnailPath = `thumbnails/${fileName}.jpg`;
 
-    this.clipTask = this.storage.upload(clipPath, this.clipFile);
-    const clipRef = this.storage.ref(clipPath);
+    const clipRef = ref(this.storage, clipPath);
+    this.clipTask = uploadBytesResumable(clipRef, this.clipFile!);
 
-    this.thumbnailTask = this.storage.upload(thumbnailPath, this.thumbnailFile);
-    const thumbnailRef = this.storage.ref(thumbnailPath);
+    const thumbnailRef = ref(this.storage, thumbnailPath);
+    this.thumbnailTask = uploadBytesResumable(
+      thumbnailRef,
+      this.thumbnailFile!
+    );
 
     combineLatest([
-      this.clipTask.percentageChanges(),
-      this.thumbnailTask.percentageChanges(),
-    ]).subscribe((progress) => {
-      const [clipProgress, thumbnailProgress] = progress;
+      percentage(this.clipTask),
+      percentage(this.thumbnailTask),
+    ]).subscribe({
+      next: (progress) => {
+        const [clipProgress, thumbnailProgress] = progress;
 
-      if (!clipProgress || !thumbnailProgress) {
-        return;
-      }
+        if (!clipProgress || !thumbnailProgress) {
+          return;
+        }
 
-      const total = clipProgress + thumbnailProgress;
+        const total = clipProgress.progress + thumbnailProgress.progress;
 
-      this.percentage = total / 200;
+        this.percentage = total / 200;
+      },
+      complete: () => {
+        this.saveFile(clipRef, thumbnailRef, fileName);
+      },
     });
+  }
 
-    forkJoin([
-      this.clipTask.snapshotChanges(),
-      this.thumbnailTask.snapshotChanges(),
-    ])
-      .pipe(
-        switchMap(() =>
-          forkJoin([clipRef.getDownloadURL(), thumbnailRef.getDownloadURL()])
-        )
-      )
-      .subscribe({
+  saveFile(
+    clipRef: StorageReference,
+    thumbnailRef: StorageReference,
+    fileName: string
+  ) {
+    forkJoin([getDownloadURL(clipRef), getDownloadURL(thumbnailRef)]).subscribe(
+      {
         next: async (urls) => {
           const [clipURL, thumbnailURL] = urls;
           const clip: IClip = {
@@ -152,7 +162,7 @@ export class UploadComponent implements OnDestroy {
             clipURL: clipURL,
             thumbnailURL: thumbnailURL,
             thumbnailFileName: `${fileName}.jpg`,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            timestamp: serverTimestamp(),
           };
           const clipDocRef = await this.clipsService.createClip(clip);
 
@@ -173,6 +183,7 @@ export class UploadComponent implements OnDestroy {
           this.showPercentage = false;
           console.error(error);
         },
-      });
+      }
+    );
   }
 }

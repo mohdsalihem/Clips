@@ -1,18 +1,18 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import firebase from 'firebase/compat/app';
+import { FieldValue, Timestamp } from '@angular/fire/firestore';
 
 @Pipe({
   name: 'firebaseTimestamp',
 })
 export class FirebaseTimestampPipe implements PipeTransform {
   constructor(private datePipe: DatePipe) {}
-  transform(value: firebase.firestore.FieldValue | undefined) {
+  transform(value: FieldValue | undefined) {
     if (!value) {
       return '';
     }
 
-    const date = (value as firebase.firestore.Timestamp).toDate();
+    const date = (value as Timestamp).toDate();
     return this.datePipe.transform(date, 'mediumDate');
   }
 }

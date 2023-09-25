@@ -1,17 +1,27 @@
 import { Injectable } from '@angular/core';
 import {
-  AngularFirestore,
-  AngularFirestoreCollection,
+  Firestore,
+  collection,
+  CollectionReference,
   DocumentReference,
   QuerySnapshot,
-} from '@angular/fire/compat/firestore';
+  doc,
+  getDoc,
+  addDoc,
+  query,
+  where,
+  orderBy,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  limit,
+  startAfter,
+} from '@angular/fire/firestore';
 import IClip from '../models/clip.model';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { of, BehaviorSubject, combineLatest, firstValueFrom } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
-import { AngularFireStorage } from '@angular/fire/compat/storage';
+import { Auth, authState } from '@angular/fire/auth';
+import { switchMap, map, combineLatestWith, of, BehaviorSubject } from 'rxjs';
+import { Storage, deleteObject, ref } from '@angular/fire/storage';
 import {
-  Resolve,
   ActivatedRouteSnapshot,
   Router,
   RouterStateSnapshot,
@@ -20,73 +30,79 @@ import {
 @Injectable({
   providedIn: 'root',
 })
-export class ClipService implements Resolve<IClip | null> {
-  public clipsCollection: AngularFirestoreCollection<IClip>;
+export class ClipService {
+  public clipsCollection: CollectionReference<IClip>;
   pageClips: IClip[] = [];
   pendingReq = false;
 
   constructor(
-    private db: AngularFirestore,
-    private auth: AngularFireAuth,
-    private storage: AngularFireStorage,
+    private db: Firestore,
+    private auth: Auth,
+    private storage: Storage,
     private router: Router
   ) {
-    this.clipsCollection = db.collection('clips');
+    this.clipsCollection = collection(
+      this.db,
+      'clips'
+    ) as CollectionReference<IClip>;
   }
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    return this.clipsCollection
-      .doc(route.params['id'])
-      .get()
-      .pipe(
-        map((snapshot) => {
-          const data = snapshot.data();
-          if (!data) {
-            this.router.navigate(['/']);
-            return null;
-          }
+    return getDoc(doc(this.clipsCollection, route.params['id'])).then(
+      (snapshot) => {
+        const data = snapshot.data();
+        if (!data) {
+          this.router.navigate(['/']);
+          return null;
+        }
 
-          return data;
-        })
-      );
+        return data;
+      }
+    );
   }
 
   createClip(data: IClip): Promise<DocumentReference<IClip>> {
-    return this.clipsCollection.add(data);
+    return addDoc(this.clipsCollection, data);
   }
 
   getUserClips(sort$: BehaviorSubject<string>) {
-    return combineLatest([this.auth.user, sort$]).pipe(
+    return authState(this.auth).pipe(
+      combineLatestWith(sort$),
       switchMap((values) => {
         const [user, sort] = values;
         if (!user) {
           return of([]);
         }
-        const query = this.clipsCollection.ref
-          .where('userID', '==', user.uid)
-          .orderBy('timestamp', sort == '1' ? 'desc' : 'asc');
-        return query.get();
+
+        return getDocs(
+          query(
+            this.clipsCollection,
+            where('userID', '==', user.uid),
+            orderBy('timestamp', sort == '1' ? 'desc' : 'asc')
+          )
+        );
       }),
       map((snapshot) => (snapshot as QuerySnapshot<IClip>).docs)
     );
   }
 
   updateClip(id: string, title: string) {
-    return this.clipsCollection.doc(id).update({
+    return updateDoc(doc(this.clipsCollection, id), {
       title: title,
     });
   }
 
   async deleteClip(clip: IClip) {
-    const clipRef = this.storage.ref(`clips/${clip.clipFileName}`);
-    const thumbnailRef = this.storage.ref(
+    const clipRef = ref(this.storage, `clips/${clip.clipFileName}`);
+    const thumbnailRef = ref(
+      this.storage,
       `thumbnails/${clip.thumbnailFileName}`
     );
 
-    await clipRef.delete();
-    await thumbnailRef.delete();
+    await deleteObject(clipRef);
+    await deleteObject(thumbnailRef);
 
-    await this.clipsCollection.doc(clip.docID).delete();
+    await deleteDoc(doc(this.clipsCollection, clip.docID));
   }
 
   async getClips(isInitialClips: boolean) {
@@ -95,7 +111,11 @@ export class ClipService implements Resolve<IClip | null> {
     }
     this.pendingReq = true;
 
-    let query = this.clipsCollection.ref.orderBy('timestamp', 'desc').limit(6);
+    let queryData = query(
+      this.clipsCollection,
+      orderBy('timestamp', 'desc'),
+      limit(6)
+    );
 
     if (isInitialClips) {
       this.pageClips = [];
@@ -105,13 +125,11 @@ export class ClipService implements Resolve<IClip | null> {
     const { length } = this.pageClips;
     if (length) {
       const lastDocID = this.pageClips[length - 1].docID;
-      const lastDoc = await firstValueFrom(
-        this.clipsCollection.doc(lastDocID).get()
-      );
-      query = query.startAfter(lastDoc);
+      const lastDoc = await getDoc(doc(this.clipsCollection, lastDocID));
+      queryData = query(queryData, startAfter(lastDoc));
     }
 
-    const snapshot = await query.get();
+    const snapshot = await getDocs(queryData);
     snapshot.forEach((doc) => {
       this.pageClips.push({
         docID: doc.id,

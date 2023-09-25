@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-login',
@@ -22,7 +22,7 @@ export class LoginComponent implements OnInit {
     email: this.email,
     password: this.password,
   });
-  constructor(private auth: AngularFireAuth) {}
+  constructor(private auth: Auth) {}
 
   ngOnInit(): void {}
 
@@ -33,7 +33,8 @@ export class LoginComponent implements OnInit {
     this.inSubmission = true;
 
     try {
-      await this.auth.signInWithEmailAndPassword(
+      await signInWithEmailAndPassword(
+        this.auth,
         this.email.value!,
         this.password.value!
       );

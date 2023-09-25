@@ -1,4 +1,5 @@
-import firebase from 'firebase/compat/app';
+import { FieldValue } from '@angular/fire/firestore';
+
 export default interface IClip {
   docID?: string;
   userID: string;
@@ -6,7 +7,7 @@ export default interface IClip {
   title: string;
   clipFileName: string;
   clipURL: string;
-  timestamp: firebase.firestore.FieldValue;
+  timestamp: FieldValue;
   thumbnailURL: string;
   thumbnailFileName: string;
 }
