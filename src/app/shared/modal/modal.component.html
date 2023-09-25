@@ -5,7 +5,7 @@
   id="modal"
 >
   <div
-    class="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0"
+    class="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0"
   >
     <!-- Modal BG Overlay -->
     <div class="fixed inset-0 transition-opacity" (click)="toggleModal()">
@@ -21,7 +21,7 @@
       class="inline-block transform overflow-hidden rounded-lg bg-color-secondary text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle"
     >
       <!-- Add margin if you want to see some of the overlay behind the modal-->
-      <div class="py-4 px-6 text-left">
+      <div class="px-6 py-4 text-left">
         <!--Title-->
         <div class="flex items-center justify-between pb-4">
           <ng-content select="[heading]"></ng-content>
