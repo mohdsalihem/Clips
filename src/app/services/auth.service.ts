@@ -12,8 +12,7 @@ import {
   setDoc,
   doc,
 } from '@angular/fire/firestore';
-import { delay, map, filter } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { Observable, delay, map, filter } from 'rxjs';
 import IUser from '../models/user.model';
 import { Router, ActivationStart } from '@angular/router';
 
@@ -29,11 +28,11 @@ export class AuthService {
   constructor(
     private auth: Auth,
     private db: Firestore,
-    private router: Router
+    private router: Router,
   ) {
     this.usersCollection = collection(
       this.db,
-      'users'
+      'users',
     ) as CollectionReference<IUser>;
     this.isAuthenticated$ = authState(this.auth).pipe(map((user) => !!user));
     this.isAuthenticatedWithDelay$ = this.isAuthenticated$.pipe(delay(1000));
@@ -42,7 +41,7 @@ export class AuthService {
       .pipe(
         filter((e) => e instanceof ActivationStart),
         map((e) => e as ActivationStart),
-        map((e) => e.snapshot.data['authOnly'] ?? false)
+        map((e) => e.snapshot.data['authOnly'] ?? false),
       )
       .subscribe((val) => (this.redirect = val));
   }
@@ -55,7 +54,7 @@ export class AuthService {
     const userCred = await createUserWithEmailAndPassword(
       this.auth,
       userData.email,
-      userData.password
+      userData.password,
     );
 
     if (!userCred.user) {

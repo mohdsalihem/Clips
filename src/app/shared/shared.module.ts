@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { NgxMaskModule } from 'ngx-mask';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 
 import { ModalComponent } from './modal/modal.component';
 import { TabsContainerComponent } from './tabs-container/tabs-container.component';
@@ -20,7 +20,7 @@ import { EventBlockerDirective } from './directives/event-blocker.directive';
     AlertComponent,
     EventBlockerDirective,
   ],
-  imports: [CommonModule, ReactiveFormsModule, NgxMaskModule.forRoot()],
+  imports: [CommonModule, ReactiveFormsModule, NgxMaskDirective],
   exports: [
     ModalComponent,
     TabsContainerComponent,
@@ -28,6 +28,8 @@ import { EventBlockerDirective } from './directives/event-blocker.directive';
     InputComponent,
     AlertComponent,
     EventBlockerDirective,
+    
   ],
+  providers: [provideNgxMask()]
 })
 export class SharedModule {}
