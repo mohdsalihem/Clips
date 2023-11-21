@@ -1,9 +1,5 @@
 ## [Clips](https://clips-flame.vercel.app/)
 
-- Short video-clip sharing web app. Users can sign up and login into the app
+- A web application that allows users to share short video clips. Users can create accounts, log in, upload video clips up to 30MB in size, and manage their content
 
-- Logged-in users can upload short video clips with a maximum of 30MB file size and manage their uploaded clips
-
-- Users can watch video clips without a login
-
-- Technologies used: Angular v14, Firebase, Tailwind CSS
+- Technologies: Angular v17, Tailwind CSS, Firebase
